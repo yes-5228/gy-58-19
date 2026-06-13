@@ -142,30 +142,7 @@ h2 {
   border-left: 4px solid #cf7d2a;
   background: #fff7ed;
   color: #62401f;
-  display: flex;
-  align-items: center;
-  gap: 10px;
   font-weight: 600;
-}
-
-.notice-icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.notice-error {
-  border-left-color: #dc2626;
-  background: #fef2f2;
-  color: #991b1b;
-}
-
-.notice-blacklist {
-  border-left-color: #b91c1c;
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-  color: #7f1d1d;
-  border: 1px solid #fecaca;
-  border-left-width: 4px;
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
 }
 
 .main-grid {

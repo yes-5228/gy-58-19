@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '../api/client.js'
 import { BookingForm } from '../components/BookingForm.jsx'
 import { BookingList } from '../components/BookingList.jsx'
@@ -17,11 +17,31 @@ export function Dashboard() {
   const [contactName, setContactName] = useState('')
   const [memberId, setMemberId] = useState('1')
   const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState('normal')
+  const autoDismissTimer = useRef(null)
 
   const selectedMember = members.find((item) => item.id === Number(memberId))
   const isBlacklistedMember = selectedMember?.is_blacklisted || false
   const blacklistReason = selectedMember?.blacklist_reason || ''
+
+  function showMessage(text, autoDismiss = false) {
+    if (autoDismissTimer.current) {
+      clearTimeout(autoDismissTimer.current)
+    }
+    setMessage(text)
+    if (autoDismiss && text) {
+      autoDismissTimer.current = setTimeout(() => {
+        setMessage('')
+      }, 3000)
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (autoDismissTimer.current) {
+        clearTimeout(autoDismissTimer.current)
+      }
+    }
+  }, [])
 
   async function loadBaseData() {
     const [courtData, memberData, bookingData] = await Promise.all([
@@ -41,11 +61,11 @@ export function Dashboard() {
   }
 
   useEffect(() => {
-    loadBaseData().catch((error) => setMessage(error.message))
+    loadBaseData().catch((error) => showMessage(error.message))
   }, [])
 
   useEffect(() => {
-    loadSlots(selectedDate).catch((error) => setMessage(error.message))
+    loadSlots(selectedDate).catch((error) => showMessage(error.message))
   }, [selectedDate])
 
   const courtsById = useMemo(
@@ -69,24 +89,18 @@ export function Dashboard() {
   async function handleCreateBooking(event) {
     event.preventDefault()
     if (!selectedSlot) return
-    setMessage('')
-    setMessageType('normal')
+    showMessage('')
     try {
       await api.createBooking({
         slot_id: selectedSlot.id,
         member_id: Number(memberId),
         contact_name: contactName.trim(),
       })
-      setMessage('预约已提交，订单待结算')
+      showMessage('✅ 预约已提交，订单待结算', true)
       setContactName('')
       await refresh()
     } catch (error) {
-      setMessage(error.message)
-      if (error.message?.startsWith('预约被拦截')) {
-        setMessageType('blacklist')
-      } else {
-        setMessageType('error')
-      }
+      showMessage(error.message)
     }
   }
 
@@ -96,7 +110,7 @@ export function Dashboard() {
       await api.updateTimeSlot(slot.id, { status })
       await loadSlots(selectedDate)
     } catch (error) {
-      setMessage(error.message)
+      showMessage(error.message)
     }
   }
 
@@ -112,21 +126,14 @@ export function Dashboard() {
 
   function handleMemberChange(newMemberId) {
     setMemberId(newMemberId)
-    setMessage('')
-    setMessageType('normal')
+    showMessage('')
   }
 
   return (
     <main className="app-shell">
       <Header stats={stats} />
       <DateTabs selectedDate={selectedDate} onChange={setSelectedDate} />
-      {message && (
-        <div className={`notice notice-${messageType}`}>
-          {messageType === 'blacklist' && <span className="notice-icon">⛔</span>}
-          {messageType === 'error' && <span className="notice-icon">⚠️</span>}
-          {message}
-        </div>
-      )}
+      {message && <div className="notice">{message}</div>}
       <div className="main-grid">
         <CourtSchedule
           courts={courts}
