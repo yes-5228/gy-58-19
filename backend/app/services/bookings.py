@@ -23,6 +23,10 @@ def create_booking(payload: BookingCreate) -> Booking:
     if not member:
         raise HTTPException(status_code=404, detail="会员不存在")
 
+    if member.is_blacklisted:
+        reason = member.blacklist_reason or "该用户已被列入黑名单"
+        raise HTTPException(status_code=403, detail=f"预约被拦截：{reason}")
+
     original, discount, payable = calculate_payable(slot, member)
     booking_id = store.next_booking_id()
     booking = Booking(

@@ -14,6 +14,8 @@ class Member(BaseModel):
     level: str
     discount_rate: float = Field(ge=0.0, le=1.0)
     phone: str = ""
+    is_blacklisted: bool = False
+    blacklist_reason: str = ""
 
 
 class TimeSlot(BaseModel):

@@ -34,7 +34,7 @@ class InMemoryStore:
         }
         self.members = {
             1: Member(id=1, name="散客", level="普通", discount_rate=1.0, phone=""),
-            2: Member(id=2, name="李明", level="银卡", discount_rate=0.9, phone="13800000001"),
+            2: Member(id=2, name="李明", level="银卡", discount_rate=0.9, phone="13800000001", is_blacklisted=True, blacklist_reason="多次预约未到场，恶意占用场地资源"),
             3: Member(id=3, name="王悦", level="金卡", discount_rate=0.8, phone="13800000002"),
             4: Member(id=4, name="陈教练", level="教练", discount_rate=0.7, phone="13800000003"),
         }
