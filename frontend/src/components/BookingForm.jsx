@@ -15,6 +15,9 @@ export function BookingForm({
   const amount = selectedSlot && member ? (selectedSlot.price * member.discount_rate).toFixed(2) : '0.00'
   const submitDisabled = !selectedSlot || !contactName.trim() || isBlacklistedMember
 
+  const normalMembers = members.filter((item) => !item.is_blacklisted)
+  const blacklistedMembers = members.filter((item) => item.is_blacklisted)
+
   return (
     <section className="panel booking-panel">
       <div className="section-title">
@@ -37,16 +40,27 @@ export function BookingForm({
             onChange={(event) => onMemberId(event.target.value)}
             className={isBlacklistedMember ? 'select-blacklisted' : ''}
           >
-            {members.map((item) => (
-              <option
-                key={item.id}
-                value={item.id}
-                className={item.is_blacklisted ? 'option-blacklisted' : ''}
-              >
-                {item.name} · {item.level} · {(item.discount_rate * 10).toFixed(1)}折
-                {item.is_blacklisted && '  ⛔ 已限制'}
-              </option>
-            ))}
+            <optgroup label="可预约会员">
+              {normalMembers.map((item) => (
+                <option key={item.id} value={item.id}>
+                  ✅ {item.name} · {item.level} · {(item.discount_rate * 10).toFixed(1)}折
+                </option>
+              ))}
+            </optgroup>
+            {blacklistedMembers.length > 0 && (
+              <optgroup label="🚫 已限制（无法预约）">
+                {blacklistedMembers.map((item) => (
+                  <option
+                    key={item.id}
+                    value={item.id}
+                    className="option-blacklisted"
+                    style={{ backgroundColor: '#fef2f2', color: '#991b1b', fontWeight: 700 }}
+                  >
+                    🚫 {item.name} · {item.level} · 已列入黑名单
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
         </label>
         {isBlacklistedMember && (

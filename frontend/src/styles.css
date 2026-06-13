@@ -350,6 +350,30 @@ select {
   font-weight: 700;
 }
 
+select optgroup {
+  font-weight: 800;
+  font-size: 13px;
+  color: #31433d;
+  background: #f1f5f3;
+  padding: 4px 0;
+}
+
+select optgroup[label*="🚫"] {
+  color: #991b1b;
+  background: #fef2f2;
+  font-weight: 900;
+  border-top: 1px solid #fecaca;
+  margin-top: 4px;
+  padding-top: 6px;
+}
+
+select optgroup[label*="🚫"] option {
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+  font-weight: 700 !important;
+  padding: 6px 8px;
+}
+
 .blacklist-warning {
   padding: 14px 16px;
   border: 2px solid #fca5a5;

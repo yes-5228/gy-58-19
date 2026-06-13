@@ -110,6 +110,12 @@ export function Dashboard() {
     await refresh()
   }
 
+  function handleMemberChange(newMemberId) {
+    setMemberId(newMemberId)
+    setMessage('')
+    setMessageType('normal')
+  }
+
   return (
     <main className="app-shell">
       <Header stats={stats} />
@@ -138,7 +144,7 @@ export function Dashboard() {
             isBlacklistedMember={isBlacklistedMember}
             blacklistReason={blacklistReason}
             onContactName={setContactName}
-            onMemberId={setMemberId}
+            onMemberId={handleMemberChange}
             onSubmit={handleCreateBooking}
           />
           <BookingList
