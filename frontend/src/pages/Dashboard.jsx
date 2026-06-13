@@ -17,6 +17,11 @@ export function Dashboard() {
   const [contactName, setContactName] = useState('')
   const [memberId, setMemberId] = useState('1')
   const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState('normal')
+
+  const selectedMember = members.find((item) => item.id === Number(memberId))
+  const isBlacklistedMember = selectedMember?.is_blacklisted || false
+  const blacklistReason = selectedMember?.blacklist_reason || ''
 
   async function loadBaseData() {
     const [courtData, memberData, bookingData] = await Promise.all([
@@ -64,6 +69,8 @@ export function Dashboard() {
   async function handleCreateBooking(event) {
     event.preventDefault()
     if (!selectedSlot) return
+    setMessage('')
+    setMessageType('normal')
     try {
       await api.createBooking({
         slot_id: selectedSlot.id,
@@ -75,6 +82,11 @@ export function Dashboard() {
       await refresh()
     } catch (error) {
       setMessage(error.message)
+      if (error.message?.startsWith('预约被拦截')) {
+        setMessageType('blacklist')
+      } else {
+        setMessageType('error')
+      }
     }
   }
 
@@ -102,7 +114,13 @@ export function Dashboard() {
     <main className="app-shell">
       <Header stats={stats} />
       <DateTabs selectedDate={selectedDate} onChange={setSelectedDate} />
-      {message && <div className="notice">{message}</div>}
+      {message && (
+        <div className={`notice notice-${messageType}`}>
+          {messageType === 'blacklist' && <span className="notice-icon">⛔</span>}
+          {messageType === 'error' && <span className="notice-icon">⚠️</span>}
+          {message}
+        </div>
+      )}
       <div className="main-grid">
         <CourtSchedule
           courts={courts}
@@ -117,6 +135,8 @@ export function Dashboard() {
             selectedSlot={selectedSlot}
             contactName={contactName}
             memberId={memberId}
+            isBlacklistedMember={isBlacklistedMember}
+            blacklistReason={blacklistReason}
             onContactName={setContactName}
             onMemberId={setMemberId}
             onSubmit={handleCreateBooking}
